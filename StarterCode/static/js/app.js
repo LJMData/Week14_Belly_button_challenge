@@ -21,9 +21,6 @@ function init() {
     // Put the sample names on the selection menu
     names.forEach(id => {
 
-      // Log each id
-      console.log(id);
-
       // Append the selection
       dropdownMenu.append("option")
         .text(id)
@@ -36,8 +33,22 @@ function init() {
     // Log the sample value
     console.log(sample1);
 
-// Add event listener to the dropdown menu
-d3.select("#selDataset").on("change", updateCharts);
+    // Call the buildMetadata function with the first sample ID
+    buildMetadata(sample1);
+
+    // Call the buildBarChart function with the first sample ID
+    buildBarChart(sample1);
+
+    // Call the buildBubbleChart function with the first sample ID
+    buildBubbleChart(sample1);
+
+    // Add event listener to the dropdown menu
+    d3.select("#selDataset").on("change", updateCharts);
+  });
+}
+
+// Call the init function to initialize the page with the first sample data
+init();
 
 // Function to update charts when dropdown selection changes
 function updateCharts() {
@@ -52,39 +63,36 @@ function updateCharts() {
 
   // Call the buildBubbleChart function with the new sample ID
   buildBubbleChart(sampleId);
-  }});
 }
 
 //Get and format the data for the metadata
 function buildMetadata(sample) {
+  // Link to the data source
+  d3.json(url).then((data) => {
+    // Extract the required data
+    let metadata = data.metadata;
 
-    // Link to the data source
-    d3.json(url).then((data) => {
+    // Filter and log the results 
+    let value = metadata.filter(result => result.id == sample);
+    console.log(value)
 
-        // Extract the required data
-        let metadata = data.metadata;
+    // Get the first Sample 
+    let valueData = value[0];
 
-        // Filter and log the results 
-        let value = metadata.filter(result => result.id == sample);
-        console.log(value)
+    // Prepare the holder
+    let metadataHolder = d3.select("#sample-metadata");
 
-        // Get the first Sample 
-        let valueData = value[0];
+    // Clear the metadata holder
+    metadataHolder.html("");
 
-        // Prepare the holder
-        let metadataHolder = d3.select("#sample-metadata");
+    // Add the values into the holder
+    Object.entries(valueData).forEach(([key, value]) => {
+      console.log(key, value);
 
-        // Clear the metadata holder
-        metadataHolder.html("");
-
-        // Add the values into the holder
-        Object.entries(valueData).forEach(([key, value]) => {
-            console.log(key, value);
-
-            metadataHolder.append("h5")
-                .text(`${key}: ${value}`);
-        });
+      metadataHolder.append("h5")
+        .text(`${key}: ${value}`);
     });
+  });
 }
 
 //Get and format the data for the barchart
